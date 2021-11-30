@@ -129,8 +129,8 @@ def remove_top_bar(elements, img_height):
     new_elements = []
     max_height = img_height * 0.04
     for ele in elements:
-        # if ele.row_min < 10 and ele.height < max_height:
-        if ele.row_max < 30:
+        # if ele.row_max < 30:
+        if ele.row_min < 10 and ele.height < max_height:
             continue
         new_elements.append(ele)
     return new_elements
@@ -223,7 +223,7 @@ def merge(img_path, compo_path, text_path, merge_root=None, is_paragraph=False, 
         elements = remove_top_bar(elements, img_height=compo_json['img_shape'][0])
         elements = remove_bottom_bar(elements, img_height=compo_json['img_shape'][0])
     if is_paragraph:
-        elements = merge_text_line_to_paragraph(elements, max_line_gap=20)
+        elements = merge_text_line_to_paragraph(elements, max_line_gap=7)
     reassign_ids(elements)
     check_containment(elements)
     board = show_elements(img_resize, elements, show=show, win_name='elements after merging', wait_key=wait_key)

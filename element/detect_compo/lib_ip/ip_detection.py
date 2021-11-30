@@ -336,7 +336,7 @@ def detect_compos_in_img(compos, binary, org, max_compo_scale=C.THRESHOLD_COMPO_
 
 
 def compo_filter(compos, min_area, img_shape):
-    max_height = img_shape[0] * 0.7
+    max_height = img_shape[0] * 0.8
     compos_new = []
     for compo in compos:
         if compo.area < min_area:

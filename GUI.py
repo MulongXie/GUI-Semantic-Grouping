@@ -130,7 +130,7 @@ class GUI:
             resize_height = None
 
         key_params = {'min-grad': 8, 'ffl-block': 5, 'min-ele-area': 50, 'merge-contained-ele': True,
-                      'max-word-inline-gap': 10, 'max-line-ingraph-gap': 4, 'remove-ui-bar': False}
+                      'max-word-inline-gap': 10, 'max-line-ingraph-gap': 4, 'remove-ui-bar': True}
         if is_ocr:
             os.makedirs(self.ocr_dir, exist_ok=True)
             self.detect_result_img_text = text.text_detection(self.img_file, self.ocr_dir, show=show)

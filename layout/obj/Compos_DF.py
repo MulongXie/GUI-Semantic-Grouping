@@ -358,9 +358,7 @@ class ComposDF:
         self.regroup_compos_by_compos_gap()
         # search and add compos into a group according to compo gaps in the group
         self.add_missed_compo_to_group_by_gaps(search_outside=False)
-        # check group validity by compos gaps in the group, the gaps among compos in a group should be similar
-        # self.check_group_validity_by_compos_gap()
-        # remove invalid compos by checking gap
+        # remove invalid compos by checking gap, the gaps between compos in a group should be similar
         self.remove_compos_by_gap()
 
     '''
@@ -574,47 +572,6 @@ class ComposDF:
             elif show_method == 'block':
                 self.visualize_fill(gather_attr='group', name='valid-two-compos')
 
-    def check_group_validity_by_compos_gap(self, show=False, show_method='block'):
-        '''
-        check group validity by compos gaps in the group, the gaps among compos in a group should be similar
-        '''
-        changed = False
-        self.calc_gap_in_group()
-        compos = self.compos_dataframe
-        groups = compos.groupby('group').groups  # {group name: list of compo ids}
-        for i in groups:
-            if i == -1: continue
-            if len(groups[i]) == 1:
-                compos.loc[groups[i][0], 'group'] = -1
-            elif len(groups[i]) > 2:
-                group = groups[i]  # list of component ids in the group
-                gaps = list(compos.loc[group]['gap'])
-
-                # cluster compos gaps
-                eps = 20 if compos.loc[group[0], 'class'] == 'Text' else 10
-                clustering = DBSCAN(eps=eps, min_samples=1).fit(np.reshape(gaps[:-1], (-1, 1)))
-                gap_labels = list(clustering.labels_)
-                gap_label_count = dict((i, gap_labels.count(i)) for i in gap_labels)  # {label: frequency of label}
-
-                for label in gap_label_count:
-                    # invalid compo if the compo's gap with others is different from others
-                    if gap_label_count[label] < 2:
-                        for j, lab in enumerate(gap_labels):
-                            if lab == label:
-                                compos.loc[group[j], 'group'] = -1
-                                changed = True
-        self.check_group_of_two_compos_validity_by_areas(show=show)
-
-        # recursively run till no changes
-        if changed:
-            self.check_group_validity_by_compos_gap()
-
-        if show:
-            if show_method == 'line':
-                self.visualize(gather_attr='group', name='valid')
-            elif show_method == 'block':
-                self.visualize_fill(gather_attr='group', name='valid')
-
     def check_unpaired_group_validity_by_interleaving(self):
         compos = self.compos_dataframe
         groups = compos.groupby('group').groups  # {group name: list of compo ids}
@@ -660,9 +617,11 @@ class ComposDF:
             elif len(groups[i]) > 2:
                 group = groups[i]  # list of component ids in the group
                 gaps = list(compos.loc[group]['gap'])
+                gaps.remove(-1)
 
                 # cluster compos gaps
-                clustering = DBSCAN(eps=20, min_samples=1).fit(np.reshape(gaps[:-1], (-1, 1)))
+                eps = 20 if compos.loc[group[0], 'class'] == 'Text' else 10
+                clustering = DBSCAN(eps=eps, min_samples=1).fit(np.reshape(gaps, (-1, 1)))
                 gap_labels = list(clustering.labels_)
                 gap_label_count = dict((i, gap_labels.count(i)) for i in gap_labels)  # {label: frequency of label}
 
